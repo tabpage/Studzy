@@ -54,7 +54,7 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
 
         .timer-display { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
-        .progress-ring__circle { transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        .progress-ring__circle { transition: stroke-dashoffset 0.1s linear; transform: rotate(-90deg); transform-origin: 50% 50%; }
 
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
         .day-cell { aspect-ratio: 1/1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; transition: 0.2s; cursor: pointer; position: relative; }
@@ -94,6 +94,11 @@
             align-items: center;
             justify-content: center;
             padding: 1.5rem;
+        }
+
+        .mode-btn.active {
+            background: var(--accent);
+            color: white;
         }
     </style>
 </head>
@@ -216,23 +221,30 @@
 
             <section id="timer" class="app-section items-center justify-center">
                 <div class="glass-card p-10 rounded-[3rem] text-center w-full max-w-md shadow-2xl">
+                    <div class="flex bg-slate-800/50 p-1 rounded-2xl mb-8 w-fit mx-auto">
+                        <button id="mode-countdown" class="mode-btn active px-6 py-2 rounded-xl text-sm font-bold transition-all">Countdown</button>
+                        <button id="mode-stopwatch" class="mode-btn px-6 py-2 rounded-xl text-sm font-bold transition-all">Stopwatch</button>
+                    </div>
+
                     <div class="relative flex items-center justify-center mb-10">
                         <svg class="w-64 h-64"><circle class="text-slate-800" stroke-width="6" fill="transparent" r="120" cx="128" cy="128"/><circle id="timer-ring" class="progress-ring__circle text-indigo-500" stroke-width="6" stroke-dasharray="753.98" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" r="120" cx="128" cy="128"/></svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
                             <div id="timer-display" class="timer-display text-5xl font-bold tracking-tight">00:00:00</div>
                         </div>
                     </div>
+
                     <div class="flex gap-4 mb-8 justify-center" id="timer-inputs">
-                        <input type="number" id="t-hr" placeholder="HH" class="timer-input">
-                        <input type="number" id="t-min" placeholder="MM" class="timer-input">
-                        <input type="number" id="t-sec" placeholder="SS" class="timer-input">
+                        <input type="number" id="t-hr" placeholder="HH" class="timer-input" min="0" max="99">
+                        <input type="number" id="t-min" placeholder="MM" class="timer-input" min="0" max="59">
+                        <input type="number" id="t-sec" placeholder="SS" class="timer-input" min="0" max="59">
                     </div>
+
                     <div class="flex justify-center gap-6">
-                        <button id="timer-start" class="bg-indigo-600 w-16 h-16 flex items-center justify-center rounded-full">
+                        <button id="timer-start" class="bg-indigo-600 w-16 h-16 flex items-center justify-center rounded-full shadow-lg shadow-indigo-600/30 hover:scale-105 transition-transform">
                             <svg id="timer-play-icon" class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M4.5 3.5v13L16 10 4.5 3.5z"/></svg>
                             <svg id="timer-pause-icon" class="w-8 h-8 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4h3v12H5V4zm7 0h3v12h-3V4z"/></svg>
                         </button>
-                        <button id="timer-reset" class="bg-slate-700 w-16 h-16 flex items-center justify-center rounded-full">
+                        <button id="timer-reset" class="bg-slate-700 w-16 h-16 flex items-center justify-center rounded-full hover:bg-slate-600 transition-colors">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                         </button>
                     </div>
@@ -441,29 +453,96 @@
         };
         window.hideDayDetails = () => document.getElementById('day-details').classList.add('hidden');
 
-        let tInterval, tLeft = 0;
-        const tRing = document.getElementById('timer-ring'), tDisplay = document.getElementById('timer-display');
-        document.getElementById('timer-start').onclick = () => {
-            if(tInterval) { clearInterval(tInterval); tInterval = null; return; }
-            if(tLeft <= 0) {
+        // Timer/Stopwatch Logic
+        let timerInterval, timeLeft = 0, isCountdown = true, isRunning = false, totalSet = 0;
+        const ring = document.getElementById('timer-ring'), display = document.getElementById('timer-display');
+        const playBtn = document.getElementById('timer-start'), resetBtn = document.getElementById('timer-reset');
+        const playIcon = document.getElementById('timer-play-icon'), pauseIcon = document.getElementById('timer-pause-icon');
+        const inputs = document.getElementById('timer-inputs');
+
+        function updateDisplay(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            display.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function updateRing(current, total) {
+            if (isCountdown) {
+                const offset = 753.98 - (current / total) * 753.98;
+                ring.style.strokeDashoffset = offset;
+            } else {
+                // For stopwatch, maybe just loop the ring or keep it full
+                ring.style.strokeDashoffset = 753.98 - ( (current % 60) / 60) * 753.98;
+            }
+        }
+
+        playBtn.onclick = () => {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                return;
+            }
+
+            if (isCountdown && timeLeft <= 0) {
                 const h = parseInt(document.getElementById('t-hr').value) || 0;
                 const m = parseInt(document.getElementById('t-min').value) || 0;
                 const s = parseInt(document.getElementById('t-sec').value) || 0;
-                tLeft = (h*3600) + (m*60) + s;
+                timeLeft = (h * 3600) + (m * 60) + s;
+                totalSet = timeLeft;
             }
-            if(tLeft <= 0) return;
-            const total = tLeft;
-            tInterval = setInterval(() => {
-                tLeft--;
-                const h = Math.floor(tLeft/3600), m = Math.floor((tLeft%3600)/60), s = tLeft%60;
-                tDisplay.innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-                tRing.style.strokeDashoffset = 753.98 - (tLeft / total) * 753.98;
-                if(tLeft <= 0) { clearInterval(tInterval); tInterval = null; }
+
+            if (isCountdown && timeLeft <= 0) return;
+
+            isRunning = true;
+            playIcon.classList.add('hidden');
+            pauseIcon.classList.remove('hidden');
+
+            timerInterval = setInterval(() => {
+                if (isCountdown) {
+                    timeLeft--;
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        playIcon.classList.remove('hidden');
+                        pauseIcon.classList.add('hidden');
+                        timeLeft = 0;
+                    }
+                } else {
+                    timeLeft++;
+                }
+                updateDisplay(timeLeft);
+                updateRing(timeLeft, totalSet);
             }, 1000);
         };
-        document.getElementById('timer-reset').onclick = () => {
-            clearInterval(tInterval); tInterval = null; tLeft = 0;
-            tDisplay.innerText = "00:00:00"; tRing.style.strokeDashoffset = 0;
+
+        resetBtn.onclick = () => {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timeLeft = 0;
+            totalSet = 0;
+            updateDisplay(0);
+            ring.style.strokeDashoffset = 0;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+        };
+
+        document.getElementById('mode-countdown').onclick = function() {
+            isCountdown = true;
+            this.classList.add('active');
+            document.getElementById('mode-stopwatch').classList.remove('active');
+            inputs.classList.remove('hidden');
+            resetBtn.click();
+        };
+
+        document.getElementById('mode-stopwatch').onclick = function() {
+            isCountdown = false;
+            this.classList.add('active');
+            document.getElementById('mode-countdown').classList.remove('active');
+            inputs.classList.add('hidden');
+            resetBtn.click();
         };
 
         renderCalendar();
