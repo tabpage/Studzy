@@ -112,6 +112,11 @@
             margin-bottom: 0.75rem;
         }
         .social-btn:hover { background: #334155; }
+
+        .mode-btn.active {
+            background: var(--accent);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -120,13 +125,11 @@
         <div class="text-2xl font-bold animate-pulse text-indigo-400 italic tracking-tighter">Studzy</div>
     </div>
 
-    <!-- Auth Section -->
     <div id="auth-section" class="auth-container">
         <div class="glass-card w-full max-w-md p-8 rounded-[2rem] shadow-2xl my-8">
             <h1 class="text-3xl font-black mb-2 text-center bg-gradient-to-br from-indigo-400 to-purple-500 bg-clip-text text-transparent italic tracking-tighter">Studzy</h1>
             <p id="auth-subtitle" class="text-slate-400 text-center mb-8 text-sm">Elevate your focus.</p>
             
-            <!-- Email Form -->
             <form id="auth-form" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold uppercase text-slate-500 mb-1 ml-1">Email Address</label>
@@ -139,40 +142,16 @@
                 <button type="submit" id="auth-submit" class="w-full bg-indigo-600 py-3 rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20">Sign In</button>
             </form>
 
-            <!-- Phone Form (Hidden initially) -->
-            <form id="phone-form" class="space-y-4 hidden">
-                <div class="flex items-center gap-2 mb-2">
-                    <button type="button" id="back-to-email" class="text-xs text-indigo-400 font-bold hover:underline">← Back to Email</button>
-                </div>
-                <div id="recaptcha-container"></div>
-                <div id="phone-input-group">
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1 ml-1">Phone Number</label>
-                    <input type="tel" id="auth-phone" placeholder="+8801..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
-                    <button type="button" id="send-otp" class="w-full mt-3 bg-indigo-600 py-3 rounded-xl font-bold hover:bg-indigo-500 transition-all">Send OTP</button>
-                </div>
-                <div id="otp-input-group" class="hidden">
-                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1 ml-1">OTP Code</label>
-                    <input type="text" id="auth-otp" placeholder="Enter 6-digit code" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
-                    <button type="button" id="verify-otp" class="w-full mt-3 bg-emerald-600 py-3 rounded-xl font-bold hover:bg-emerald-500 transition-all">Verify & Login</button>
-                </div>
-            </form>
-
             <div class="flex items-center my-6">
                 <div class="flex-1 border-t border-slate-700"></div>
                 <div class="px-3 text-xs text-slate-500 font-bold uppercase">Or</div>
                 <div class="flex-1 border-t border-slate-700"></div>
             </div>
 
-            <!-- Social Buttons Group -->
             <div id="social-actions" class="space-y-3">
                 <button id="google-signin" class="social-btn">
                     <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5.04c1.9 0 3.53.72 4.67 1.89l3.5-3.5C17.91 1.24 15.21 0 12 0 7.31 0 3.32 2.67 1.38 6.57l4.08 3.16C6.44 7.24 8.96 5.04 12 5.04z"/><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58l3.76 2.91c2.2-2.02 3.66-5 3.66-8.73z"/><path fill="#FBBC05" d="M5.46 15.35c-.24-.72-.37-1.49-.37-2.35s.13-1.63.37-2.35L1.38 6.57C.5 8.2.01 10.04.01 12c0 1.96.49 3.8 1.37 5.43l4.08-3.08z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.76-2.91c-1.08.72-2.46 1.16-4.17 1.16-3.04 0-5.56-2.2-6.56-5.16L1.38 17.43C3.32 21.33 7.31 24 12 24z"/></svg>
                     Continue with Google
-                </button>
-
-                <button id="show-phone-auth" class="social-btn">
-                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                    Continue with Phone
                 </button>
             </div>
             
@@ -184,7 +163,6 @@
         </div>
     </div>
 
-    <!-- Main App UI -->
     <div id="app-main" class="hidden w-full flex">
         <nav class="w-20 md:w-64 border-r border-slate-800 flex flex-col items-center md:items-stretch py-8 shrink-0">
             <div class="px-6 mb-10 hidden md:block">
@@ -271,9 +249,11 @@
             <section id="timer" class="app-section items-center justify-center">
                 <div class="glass-card p-10 rounded-[3rem] text-center w-full max-w-md shadow-2xl">
                     <div class="flex bg-slate-800/50 p-1 rounded-2xl mb-8 w-fit mx-auto">
-                        <button id="mode-countdown" class="mode-btn active px-6 py-2 rounded-xl text-sm font-bold transition-all">Countdown</button>
-                        <button id="mode-stopwatch" class="mode-btn px-6 py-2 rounded-xl text-sm font-bold transition-all">Stopwatch</button>
+                        <button id="mode-countdown" class="mode-btn active px-4 py-2 rounded-xl text-xs font-bold transition-all">Countdown</button>
+                        <button id="mode-stopwatch" class="mode-btn px-4 py-2 rounded-xl text-xs font-bold transition-all">Stopwatch</button>
+                        <button id="mode-pomodoro" class="mode-btn px-4 py-2 rounded-xl text-xs font-bold transition-all">Pomodoro</button>
                     </div>
+                    <div id="pomodoro-status" class="hidden mb-4 text-indigo-400 font-bold uppercase tracking-widest text-xs">Focus Time</div>
                     <div class="relative flex items-center justify-center mb-10">
                         <svg class="w-64 h-64"><circle class="text-slate-800" stroke-width="6" fill="transparent" r="120" cx="128" cy="128"/><circle id="timer-ring" class="progress-ring__circle text-indigo-500" stroke-width="6" stroke-dasharray="753.98" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" r="120" cx="128" cy="128"/></svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
@@ -299,7 +279,6 @@
         </main>
     </div>
 
-    <!-- Note Modal -->
     <div id="note-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center z-[100] p-4">
         <div class="glass-card w-full max-w-lg rounded-3xl p-8 border-slate-700">
             <input id="new-note-title" type="text" placeholder="Title..." class="w-full bg-transparent text-2xl font-bold mb-6 outline-none text-indigo-400">
@@ -320,13 +299,10 @@
             createUserWithEmailAndPassword, 
             signOut, 
             GoogleAuthProvider, 
-            signInWithPopup,
-            RecaptchaVerifier,
-            signInWithPhoneNumber 
+            signInWithPopup
         } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
         import { getDatabase, ref, set, onValue, push, remove, update, off } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-        // Firebase Configuration (Replace with your own if needed)
         const firebaseConfig = {
             apiKey: "AIzaSyBPJ95Pt-pLVaVTmkA4Kj4iPtiYKvn5dxc",
             authDomain: "my-app-369963.firebaseapp.com",
@@ -348,77 +324,18 @@
         let notes = [];
         let dayDescriptions = {};
         let calDate = new Date();
-        let confirmationResult = null;
 
         const authForm = document.getElementById('auth-form');
-        const phoneForm = document.getElementById('phone-form');
-        const socialActions = document.getElementById('social-actions');
         const authToggle = document.getElementById('auth-toggle');
         const authError = document.getElementById('auth-error');
         const googleBtn = document.getElementById('google-signin');
-        const phoneBtn = document.getElementById('show-phone-auth');
-        const backToEmailBtn = document.getElementById('back-to-email');
 
-        // Toggle UI logic
-        phoneBtn.onclick = () => {
-            authForm.classList.add('hidden');
-            socialActions.classList.add('hidden');
-            phoneForm.classList.remove('hidden');
-            document.getElementById('signup-toggle-container').classList.add('hidden');
-            authError.classList.add('hidden');
-        };
-
-        backToEmailBtn.onclick = () => {
-            phoneForm.classList.add('hidden');
-            authForm.classList.remove('hidden');
-            socialActions.classList.remove('hidden');
-            document.getElementById('signup-toggle-container').classList.remove('hidden');
-            authError.classList.add('hidden');
-        };
-
-        // Google Sign-In
         googleBtn.onclick = async () => {
             const provider = new GoogleAuthProvider();
             try {
                 await signInWithPopup(auth, provider);
             } catch (err) {
                 showError(err.message);
-            }
-        };
-
-        // Phone Auth Setup
-        const setupRecaptcha = () => {
-            if (!window.recaptchaVerifier) {
-                window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                    'size': 'invisible'
-                });
-            }
-        };
-
-        document.getElementById('send-otp').onclick = async () => {
-            const phoneNumber = document.getElementById('auth-phone').value;
-            if (!phoneNumber.startsWith('+')) {
-                showError("Please include country code (e.g., +880)");
-                return;
-            }
-            setupRecaptcha();
-            const appVerifier = window.recaptchaVerifier;
-            try {
-                confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-                document.getElementById('phone-input-group').classList.add('hidden');
-                document.getElementById('otp-input-group').classList.remove('hidden');
-                authError.classList.add('hidden');
-            } catch (err) {
-                showError(err.message);
-            }
-        };
-
-        document.getElementById('verify-otp').onclick = async () => {
-            const code = document.getElementById('auth-otp').value;
-            try {
-                await confirmationResult.confirm(code);
-            } catch (err) {
-                showError("Invalid OTP code");
             }
         };
 
@@ -463,10 +380,6 @@
                 authSection.classList.remove('hidden');
                 appMain.classList.add('hidden');
                 cleanupSync();
-                // Reset to default state
-                backToEmailBtn.click();
-                document.getElementById('phone-input-group').classList.remove('hidden');
-                document.getElementById('otp-input-group').classList.add('hidden');
             }
             if(loading) {
                 loading.style.opacity = '0';
@@ -474,7 +387,6 @@
             }
         });
 
-        // Data Management (RTDB)
         let syncRefs = [];
         function initDataSync(uid) {
             const userRoot = `users/${uid}`;
@@ -588,12 +500,15 @@
         };
         window.hideDayDetails = () => document.getElementById('day-details').classList.add('hidden');
 
-        // Timer Logic
+        // --- UPDATED TIMER LOGIC ---
         let timerInterval, timeLeft = 0, isCountdown = true, isRunning = false, totalSet = 0;
+        let isPomodoro = false, pomodoroPhase = 'work'; // 'work' or 'break'
+
         const ring = document.getElementById('timer-ring'), display = document.getElementById('timer-display');
         const playBtn = document.getElementById('timer-start'), resetBtn = document.getElementById('timer-reset');
         const playIcon = document.getElementById('timer-play-icon'), pauseIcon = document.getElementById('timer-pause-icon');
         const inputs = document.getElementById('timer-inputs');
+        const pomoStatus = document.getElementById('pomodoro-status');
 
         function updateDisplay(seconds) {
             const h = Math.floor(seconds / 3600);
@@ -603,11 +518,11 @@
         }
 
         function updateRing(current, total) {
-            if (isCountdown) {
+            if (isCountdown || isPomodoro) {
                 const offset = 753.98 - (current / total) * 753.98;
                 ring.style.strokeDashoffset = isNaN(offset) ? 0 : offset;
             } else {
-                ring.style.strokeDashoffset = 753.98 - ( (current % 60) / 60) * 753.98;
+                ring.style.strokeDashoffset = 753.98 - ((current % 60) / 60) * 753.98;
             }
         }
 
@@ -619,22 +534,46 @@
                 pauseIcon.classList.add('hidden');
                 return;
             }
-            if (isCountdown && timeLeft <= 0) {
+
+            if (isPomodoro && timeLeft <= 0) {
+                // Initialize Pomo if reset or just switched
+                timeLeft = (pomodoroPhase === 'work') ? 25 * 60 : 5 * 60;
+                totalSet = timeLeft;
+            } else if (isCountdown && timeLeft <= 0) {
                 const h = parseInt(document.getElementById('t-hr').value) || 0;
                 const m = parseInt(document.getElementById('t-min').value) || 0;
                 const s = parseInt(document.getElementById('t-sec').value) || 0;
                 timeLeft = (h * 3600) + (m * 60) + s;
                 totalSet = timeLeft;
             }
-            if (isCountdown && timeLeft <= 0) return;
+
+            if ((isCountdown || isPomodoro) && timeLeft <= 0) return;
+
             isRunning = true;
             playIcon.classList.add('hidden');
             pauseIcon.classList.remove('hidden');
+
             timerInterval = setInterval(() => {
-                if (isCountdown) {
+                if (isCountdown || isPomodoro) {
                     timeLeft--;
-                    if (timeLeft <= 0) { clearInterval(timerInterval); isRunning = false; playIcon.classList.remove('hidden'); pauseIcon.classList.add('hidden'); timeLeft = 0; }
-                } else { timeLeft++; }
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        playIcon.classList.remove('hidden');
+                        pauseIcon.classList.add('hidden');
+                        timeLeft = 0;
+                        
+                        if (isPomodoro) {
+                            // Swap phases automatically
+                            pomodoroPhase = (pomodoroPhase === 'work') ? 'break' : 'work';
+                            pomoStatus.innerText = (pomodoroPhase === 'work') ? 'Focus Time' : 'Break Time';
+                            pomoStatus.className = (pomodoroPhase === 'work') ? 'mb-4 text-indigo-400 font-bold uppercase tracking-widest text-xs' : 'mb-4 text-green-400 font-bold uppercase tracking-widest text-xs';
+                            // Alert user briefly? For now just stop.
+                        }
+                    }
+                } else { 
+                    timeLeft++; 
+                }
                 updateDisplay(timeLeft);
                 updateRing(timeLeft, totalSet);
             }, 1000);
@@ -645,27 +584,49 @@
             isRunning = false;
             timeLeft = 0;
             totalSet = 0;
-            updateDisplay(0);
+            if (isPomodoro) {
+                pomodoroPhase = 'work';
+                pomoStatus.innerText = 'Focus Time';
+                pomoStatus.className = 'mb-4 text-indigo-400 font-bold uppercase tracking-widest text-xs';
+                timeLeft = 25 * 60;
+                totalSet = timeLeft;
+            }
+            updateDisplay(timeLeft);
             ring.style.strokeDashoffset = 0;
             playIcon.classList.remove('hidden');
             pauseIcon.classList.add('hidden');
         };
 
         document.getElementById('mode-countdown').onclick = function() {
-            isCountdown = true;
+            isCountdown = true; isPomodoro = false;
+            resetModes();
             this.classList.add('active');
-            document.getElementById('mode-stopwatch').classList.remove('active');
             inputs.classList.remove('hidden');
+            pomoStatus.classList.add('hidden');
             resetBtn.click();
         };
 
         document.getElementById('mode-stopwatch').onclick = function() {
-            isCountdown = false;
+            isCountdown = false; isPomodoro = false;
+            resetModes();
             this.classList.add('active');
-            document.getElementById('mode-countdown').classList.remove('active');
             inputs.classList.add('hidden');
+            pomoStatus.classList.add('hidden');
             resetBtn.click();
         };
+
+        document.getElementById('mode-pomodoro').onclick = function() {
+            isCountdown = false; isPomodoro = true;
+            resetModes();
+            this.classList.add('active');
+            inputs.classList.add('hidden');
+            pomoStatus.classList.remove('hidden');
+            resetBtn.click();
+        };
+
+        function resetModes() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        }
 
         renderCalendar();
     </script>
